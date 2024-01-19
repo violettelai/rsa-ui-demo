@@ -17,14 +17,14 @@ class RSA{
             }
         });
 
-        final JButton SENDER_BUTTON = new JButton("Login as Sender");
-        final JButton RECEIVER_BUTTON = new JButton("Login as Receiver");
+        final JButton ALICE_BUTTON = new JButton("Login as Alice");
+        final JButton BOB_BUTTON = new JButton("Login as Bob");
         final JButton EXIT_BUTTON = new JButton("Exit Program");
 
         JPanel buttonPanel = gui.createVertPanel(3, 1, 0, 50);
         buttonPanel.setMaximumSize(new Dimension(300,230));
-        buttonPanel.add(SENDER_BUTTON);
-        buttonPanel.add(RECEIVER_BUTTON);
+        buttonPanel.add(ALICE_BUTTON);
+        buttonPanel.add(BOB_BUTTON);
         buttonPanel.add(EXIT_BUTTON);
 
         JPanel boxPanel = gui.createBoxPanel();
@@ -36,14 +36,14 @@ class RSA{
 
         ActionListener buttonAction = new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if(e.getSource()== SENDER_BUTTON){
+                if(e.getSource()== ALICE_BUTTON){
                     // f.dispose();
-                    User sender = new User("Sender");
-                    sender.menu();
-                }else if(e.getSource()== RECEIVER_BUTTON){
+                    User alice = new User("Alice");
+                    alice.menu();
+                }else if(e.getSource()== BOB_BUTTON){
                     // f.dispose();
-                    User receiver = new User("Receiver");
-                    receiver.menu();
+                    User bob = new User("Bob");
+                    bob.menu();
                 }else if(e.getSource()== EXIT_BUTTON){
                     // f.dispose();
                     System.exit(0);
@@ -51,8 +51,8 @@ class RSA{
             }
         };
 
-        SENDER_BUTTON.addActionListener(buttonAction);
-        RECEIVER_BUTTON.addActionListener(buttonAction);
+        ALICE_BUTTON.addActionListener(buttonAction);
+        BOB_BUTTON.addActionListener(buttonAction);
         EXIT_BUTTON.addActionListener(buttonAction);
     }
 

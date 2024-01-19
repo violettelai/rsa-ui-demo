@@ -6,7 +6,7 @@ import java.awt.event.WindowEvent;
 public class GUI {
   public JFrame createFrame(String pageName){
     JFrame f = new JFrame(pageName);
-    f.setSize(500,375);
+    f.setSize(700,375);
     f.setLayout(new BorderLayout());
     //Create JFrame at center of screen (Windows)
     f.setLocationRelativeTo(null); 

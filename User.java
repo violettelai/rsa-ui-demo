@@ -1,11 +1,16 @@
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Scanner;
+import javax.swing.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import javax.swing.event.*;
 
 public class User {
     private String username;
     private BigInteger[] pk;
     private BigInteger[] sk;
+    static GUI gui = new GUI();
 
     public User(String username) {
         this.username = username;
@@ -83,15 +88,49 @@ public class User {
         // else
         // logout()
 
+        final JFrame f = gui.createFrame(this.username + " Window");
+
+        final JButton CREATE_MESSAGE_BUTTON = new JButton("Create Message");
+        final JButton VIEW_MESSAGE_BUTTON = new JButton("View Message");
+        final JButton LOGOUT_BUTTON = new JButton("Log Out");
+
+        JPanel buttonPanel = gui.createVertPanel(3, 1, 0, 50);
+        buttonPanel.setMaximumSize(new Dimension(300,230));
+        buttonPanel.add(CREATE_MESSAGE_BUTTON);
+        buttonPanel.add(VIEW_MESSAGE_BUTTON);
+        buttonPanel.add(LOGOUT_BUTTON);
+        
+        JPanel boxPanel = gui.createBoxPanel();
+        boxPanel.add(Box.createVerticalStrut(35));
+        boxPanel.add(buttonPanel);
+
+        f.add(boxPanel, BorderLayout.CENTER);
+        f.setVisible(true);
+
         // Placeholder code for demonstration purposes
-        int choice = 1;  // Assuming choice 1 for sending a message
-        if (choice == 1) {
-            this.createMsg();
-        } else if (choice == 2) {
-            this.viewMsg();
-        } else {
-            this.logout();
-        }
+        // int choice = 1;  // Assuming choice 1 for sending a message
+        // if (choice == 1) {
+        //     this.createMsg();
+        // } else if (choice == 2) {
+        //     this.viewMsg();
+        // } else {
+        //     this.logout();
+        // }
+        ActionListener buttonAction = new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                if(e.getSource()== CREATE_MESSAGE_BUTTON){
+                    createMsg();
+                }else if(e.getSource()== VIEW_MESSAGE_BUTTON){
+                    viewMsg();
+                }else if(e.getSource()== LOGOUT_BUTTON){
+                    logout();
+                }
+            }
+        };
+
+        CREATE_MESSAGE_BUTTON.addActionListener(buttonAction);
+        VIEW_MESSAGE_BUTTON.addActionListener(buttonAction);
+        LOGOUT_BUTTON.addActionListener(buttonAction);
     }
 
     void createMsg() {

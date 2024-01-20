@@ -96,6 +96,16 @@ public class User extends JFrame{
         this.sk = new BigInteger[2];
         this.sk[0] = d;
         this.sk[1] = n;
+
+        byte[] eByte = this.pk[0].toByteArray();
+        String eString = Base64.getEncoder().encodeToString(eByte);
+        byte[] dByte = this.sk[0].toByteArray();
+        String dString = Base64.getEncoder().encodeToString(dByte);
+        byte[] nByte = this.sk[1].toByteArray();
+        String nString = Base64.getEncoder().encodeToString(nByte);
+
+        PKArea.append("e: " + eString + "\nn: " + nString + "\n");
+        SKArea.append("d: " + dString + "\nn: " + nString + "\n");
     }
 
     BigInteger encrypt(String m) {
@@ -128,10 +138,6 @@ public class User extends JFrame{
     }
 
     JPanel menu() {
-        byte[] pk2 = this.pk[1].toByteArray();
-        String spk2 = Base64.getEncoder().encodeToString(pk2);
-
-        // final JLabel keyLabel = new JLabel("Public key: ("+this.pk[0]+", "+this.pk[1]+")  Private key: ("+this.sk[0]+", "+this.sk[1]+")"); 
         final JButton SEND_MESSAGE_BUTTON = new JButton("Send Message");
         
         final JLabel usernameLabel = new JLabel(username);

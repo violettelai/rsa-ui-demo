@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Scanner;
 import javax.swing.*;
 import java.math.BigInteger;
@@ -11,7 +13,10 @@ public class User extends JFrame{
     private String username;
     private BigInteger[] pk;
     private BigInteger[] sk;
+
     private JTextArea ViewMessageArea;
+    private JTextArea PKArea = new JTextArea();
+    private JTextArea SKArea = new JTextArea();
     static GUI gui = new GUI();
 
     public User(String username) {
@@ -29,14 +34,19 @@ public class User extends JFrame{
     void sendMessage(String message) {
         // to get receiver public key for encryption, secret key for decryption
         User receiver = retrieveReceiverObject();
-        String encryptedMessage = receiver.encrypt(message);
+        BigInteger encryptedMessage = receiver.encrypt(message);
+        int error = encryptedMessage.intValue();
         if (receiver != null) {
-            receiver.receiveMessage(encryptedMessage);
+            if(error != -1)
+                receiver.receiveMessage(encryptedMessage);
         }
     }
 
-    void receiveMessage(String message) {
-        ViewMessageArea.append("Received Encrypted Message: " + message + "\n");
+    void receiveMessage(BigInteger message) {
+        byte[] cByteArray = message.toByteArray();
+        String c = Base64.getEncoder().encodeToString(cByteArray);
+
+        ViewMessageArea.append("Received Encrypted Message: " + c + "\n");
         ViewMessageArea.append("Plaintext: " + decrypt(message) + "\n");
         ViewMessageArea.append("--------------------------------------\n");
     }
@@ -86,19 +96,36 @@ public class User extends JFrame{
         this.sk = new BigInteger[2];
         this.sk[0] = d;
         this.sk[1] = n;
+
+        byte[] eByte = this.pk[0].toByteArray();
+        String eString = Base64.getEncoder().encodeToString(eByte);
+        byte[] dByte = this.sk[0].toByteArray();
+        String dString = Base64.getEncoder().encodeToString(dByte);
+        byte[] nByte = this.sk[1].toByteArray();
+        String nString = Base64.getEncoder().encodeToString(nByte);
+
+        PKArea.append("e: " + eString + "\nn: " + nString + "\n");
+        SKArea.append("d: " + dString + "\nn: " + nString + "\n");
     }
 
-    String encrypt(String m) {
+    BigInteger encrypt(String m) {
         //convert string to byte, encoding format UTF8, convert byte to biginteger for calculation
         BigInteger message = new BigInteger(m.getBytes(StandardCharsets.UTF_8));
-        BigInteger c = message.modPow(this.pk[0], this.pk[1]);
-        
-        return c.toString(); //Convert BigInteger to string
+
+        BigInteger c;
+        if(message.compareTo(this.pk[1]) == 1){
+            System.out.println("message too large");
+            c = new BigInteger("-1");
+        }else{
+            c = message.modPow(this.pk[0], this.pk[1]);
+        }
+
+        return c;
     }
 
-    String decrypt(String c) {
+    String decrypt(BigInteger ciphertext) {
         //convert string to biginteger
-        BigInteger ciphertext = new BigInteger(c);
+        // BigInteger ciphertext = new BigInteger(c);
         BigInteger m = ciphertext.modPow(this.sk[0], this.sk[1]);
         
         //convert biginteger to byte
@@ -110,17 +137,32 @@ public class User extends JFrame{
         return s;
     }
 
-    void menu() {
-        final JFrame f = gui.createFrame(this.username + " Window");
-
+    JPanel menu() {
         final JButton SEND_MESSAGE_BUTTON = new JButton("Send Message");
-        final JButton LOGOUT_BUTTON = new JButton("Log Out");
+        
+        final JLabel usernameLabel = new JLabel(username);
+        usernameLabel.setPreferredSize(new Dimension(100, 30));
+        usernameLabel.setFont(new Font("Tahoma", Font.CENTER_BASELINE, 16));
 
-        JPanel buttonPanel = gui.createHoriPanel();
-        buttonPanel.add(LOGOUT_BUTTON);
+        PKArea.setSize(new Dimension(310, 60));
+        PKArea.setEditable(false);
+        PKArea.setLineWrap(true);
+        PKArea.setWrapStyleWord(true);
+
+        SKArea.setSize(new Dimension(310, 60));
+        SKArea.setEditable(false);
+        SKArea.setLineWrap(true);
+        SKArea.setWrapStyleWord(true);
+
+        JPanel keyPanel = gui.createVertPanel(2, 2, 10, -10);
+        keyPanel.add(new JLabel("Pk(e, n)"));      keyPanel.add(new JLabel("Sk(d, n)"));
+        keyPanel.add(gui.createScrollPane(PKArea));
+        keyPanel.add(gui.createScrollPane(SKArea));
+        keyPanel.setPreferredSize(new Dimension(600, 130));
 
         JPanel createMessagePanel = gui.createHoriPanel();
         final JTextField messageInputBox = new JTextField("Enter message here");
+        messageInputBox.setPreferredSize(new Dimension(450, 50));
         createMessagePanel.add(messageInputBox);
         createMessagePanel.add(SEND_MESSAGE_BUTTON);
         
@@ -132,12 +174,11 @@ public class User extends JFrame{
         scrollPane.setPreferredSize(new Dimension(400, 250));
 
         JPanel boxPanel = gui.createBoxPanel();
-        boxPanel.add(buttonPanel);
+        boxPanel.add(usernameLabel);
+        boxPanel.add(keyPanel);
         boxPanel.add(createMessagePanel);
         boxPanel.add(scrollPane);
-
-        f.add(boxPanel, BorderLayout.NORTH);
-        f.setVisible(true);
+        boxPanel.setBorder(BorderFactory.createLineBorder(Color.gray));
 
         ActionListener buttonAction = new ActionListener(){
             public void actionPerformed(ActionEvent e){
@@ -148,12 +189,11 @@ public class User extends JFrame{
                     }else{
                         sendMessage(message);
                     }
-                }else if(e.getSource()== LOGOUT_BUTTON){
-                    f.dispose();
                 }
             }
         };
         SEND_MESSAGE_BUTTON.addActionListener(buttonAction);
-        LOGOUT_BUTTON.addActionListener(buttonAction);
+
+        return boxPanel;
     }
 }

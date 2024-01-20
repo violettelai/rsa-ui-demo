@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.util.Scanner;
 import javax.swing.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import javax.swing.event.*;
 
@@ -24,8 +25,9 @@ public class User extends JFrame{
 
     // Both users can send & receive message
     void sendMessage(String message) {
-        String encryptedMessage = encrypt(message);
+        // to get receiver public key for encryption, secret key for decryption
         User receiver = retrieveReceiverObject();
+        String encryptedMessage = receiver.encrypt(message);
         if (receiver != null) {
             receiver.receiveMessage(encryptedMessage);
         }
@@ -96,20 +98,32 @@ public class User extends JFrame{
     }
 
     String encrypt(String m) {
-        BigInteger message = new BigInteger(m.getBytes());
-
-        // message must be smaller than n?
-        // if(message.compareTo(this.pk[1])!=1) System.out.println("m: " + message + " < n :" +this.pk[1]);
-        // else return "message too large";
+        //convert string to byte, encoding format UTF8, convert byte to biginteger for calculation
+        BigInteger message = new BigInteger(m.getBytes(StandardCharsets.UTF_8));
+        // System.out.printf("ENC: BigInt message: %d \n",message); 
         
         BigInteger c = message.modPow(this.pk[0], this.pk[1]);
+        // System.out.printf("ENC: BigInt c: %d \n",c);
+
+        //convert biginteger to string
         return c.toString();
     }
 
     String decrypt(String c) {
+        //convert string to biginteger
         BigInteger ciphertext = new BigInteger(c);
+        // System.out.printf("DEC: BigInt ciphertext: %d \n",ciphertext);
+        
         BigInteger m = ciphertext.modPow(this.sk[0], this.sk[1]);
-        return new String(m.toByteArray());
+        // System.out.printf("DEC: BigInt m: %d \n",m);
+
+        //convert biginteger to byte
+        byte[] decMByteArray = m.toByteArray();
+        //convert byte to string, encoding format UTF8
+        String s = new String(decMByteArray, StandardCharsets.UTF_8);
+        // System.out.printf("DEC: string m: %s \n",s);
+
+        return s;
     }
 
     void menu() {

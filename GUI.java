@@ -6,11 +6,17 @@ import java.awt.event.WindowEvent;
 public class GUI {
   public JFrame createFrame(String pageName){
     JFrame f = new JFrame(pageName);
-    f.setSize(700,375);
+    f.setSize(1300,550);
     f.setLayout(new BorderLayout());
-
-    //Create JFrame at center of screen (Windows)
     f.setLocationRelativeTo(null); 
+    
+    f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+      f.addWindowListener(new WindowAdapter() {
+          public void windowClosing(WindowEvent e) {
+              int ans = JOptionPane.showConfirmDialog(null, "Do you want to exit the program?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+              if(ans == JOptionPane.YES_OPTION) System.exit(0);
+          }
+      });
     return f; 
   }
 
@@ -28,7 +34,7 @@ public class GUI {
         p.removeAll();
         p.validate();
         p.setLayout(new GridLayout(row, column, hgap, vgap));
-        p.setMaximumSize(new Dimension(250,150));
+        p.setMaximumSize(new Dimension(600,150));
         return p;
     }
 
@@ -38,5 +44,10 @@ public class GUI {
         p.validate();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         return p;
+    }
+
+    public JScrollPane createScrollPane(JTextArea textArea){
+      JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      return scrollPane;
     }
 }

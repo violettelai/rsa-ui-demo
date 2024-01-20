@@ -6,15 +6,53 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import javax.swing.event.*;
 
-public class User {
+public class User extends JFrame{
     private String username;
     private BigInteger[] pk;
     private BigInteger[] sk;
+    private JTextArea ViewMessageArea;
     static GUI gui = new GUI();
 
     public User(String username) {
         this.username = username;
         this.keygen(1024); // Call key generation method when creating a new user
+    }
+
+    public BigInteger[] retrievePublicKey(){
+        return pk;
+    }
+
+    // Both users can send & receive message
+    void sendMessage(String message) {
+        String encryptedMessage = encrypt(message);
+        User receiver = retrieveReceiverObject();
+        if (receiver != null) {
+            receiver.receiveMessage(encryptedMessage);
+        }
+    }
+
+    void receiveMessage(String message) {
+        ViewMessageArea.append("Received Encrypted Message: " + message + "\n");
+        ViewMessageArea.append("Plaintext: " + decrypt(message) + "\n");
+        System.out.println(decrypt(message));
+        ViewMessageArea.append("--------------------------------------\n");
+    }
+
+    // Retrieve Receiver User Object
+    User retrieveReceiverObject() {
+        // Alice's receiver is Bob and vice versa
+        String receiverName = "";
+        if(username.equals("Alice")) receiverName = "Bob";
+        else receiverName = "Alice";
+
+        Frame[] frames = Frame.getFrames();
+        for (Frame frame : frames) {
+            if (frame instanceof User && ((User) frame).username.equals(receiverName)) {
+                return (User) frame;
+            }
+        }
+        JOptionPane.showMessageDialog(null, "Bob is not logged in!", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
     }
 
     void keygen(int keySize) {
@@ -75,61 +113,53 @@ public class User {
     }
 
     void menu() {
-        // action
-        // 1. send message
-        // 2. view message
-        // 3. logout
-        // choice
-
-        // if (choice == 1)
-        // createMsg()
-        // else if (choice == 2)
-        // viewMsg()
-        // else
-        // logout()
-
         final JFrame f = gui.createFrame(this.username + " Window");
 
         final JButton CREATE_MESSAGE_BUTTON = new JButton("Create Message");
-        final JButton VIEW_MESSAGE_BUTTON = new JButton("View Message");
         final JButton LOGOUT_BUTTON = new JButton("Log Out");
 
-        JPanel buttonPanel = gui.createVertPanel(3, 1, 0, 50);
-        buttonPanel.setMaximumSize(new Dimension(300,230));
-        buttonPanel.add(CREATE_MESSAGE_BUTTON);
-        buttonPanel.add(VIEW_MESSAGE_BUTTON);
+        JPanel buttonPanel = gui.createHoriPanel();
         buttonPanel.add(LOGOUT_BUTTON);
-        
-        JPanel boxPanel = gui.createBoxPanel();
-        boxPanel.add(Box.createVerticalStrut(35));
-        boxPanel.add(buttonPanel);
 
-        f.add(boxPanel, BorderLayout.CENTER);
+        JPanel createMessagePanel = gui.createHoriPanel();
+        final JTextField messageInputBox = new JTextField("20 characters only");
+        createMessagePanel.add(messageInputBox);
+        createMessagePanel.add(CREATE_MESSAGE_BUTTON);
+        
+        ViewMessageArea = new JTextArea();
+        ViewMessageArea.setEditable(false);
+        ViewMessageArea.setRows(15);
+
+        JScrollPane scrollPane = new JScrollPane(ViewMessageArea);
+        scrollPane.setPreferredSize(new Dimension(400, 250));
+
+        JPanel boxPanel = gui.createBoxPanel();
+        // boxPanel.add(Box.createVerticalStrut(35));
+        boxPanel.add(buttonPanel);
+        boxPanel.add(createMessagePanel);
+        // boxPanel.setBackground(Color.RED);
+        boxPanel.add(scrollPane);
+
+        f.add(boxPanel, BorderLayout.NORTH);
         f.setVisible(true);
 
-        // Placeholder code for demonstration purposes
-        // int choice = 1;  // Assuming choice 1 for sending a message
-        // if (choice == 1) {
-        //     this.createMsg();
-        // } else if (choice == 2) {
-        //     this.viewMsg();
-        // } else {
-        //     this.logout();
-        // }
         ActionListener buttonAction = new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 if(e.getSource()== CREATE_MESSAGE_BUTTON){
-                    createMsg();
-                }else if(e.getSource()== VIEW_MESSAGE_BUTTON){
-                    viewMsg();
+                    String message = messageInputBox.getText();
+                    if(message.length() >= 20){
+                        JOptionPane.showMessageDialog(null, "Message Too Long!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }else{
+                        sendMessage(message);
+                    }
+                    // createMsg();
                 }else if(e.getSource()== LOGOUT_BUTTON){
-                    logout();
+                    f.dispose();
                 }
             }
         };
 
         CREATE_MESSAGE_BUTTON.addActionListener(buttonAction);
-        VIEW_MESSAGE_BUTTON.addActionListener(buttonAction);
         LOGOUT_BUTTON.addActionListener(buttonAction);
     }
 

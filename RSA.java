@@ -7,7 +7,7 @@ import javax.swing.event.*;
 class RSA{
     static GUI gui = new GUI();
     public static void main (String args[]){
-        final JFrame f = gui.createFrame("Account Login");
+        final JFrame f = gui.createFrame("RSA");
         f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         // Only closing main frame will exit program

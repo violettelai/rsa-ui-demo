@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Scanner;
 import javax.swing.*;
 import java.math.BigInteger;
@@ -29,14 +31,19 @@ public class User extends JFrame{
     void sendMessage(String message) {
         // to get receiver public key for encryption, secret key for decryption
         User receiver = retrieveReceiverObject();
-        String encryptedMessage = receiver.encrypt(message);
+        BigInteger encryptedMessage = receiver.encrypt(message);
+        int error = encryptedMessage.intValue();
         if (receiver != null) {
-            receiver.receiveMessage(encryptedMessage);
+            if(error != -1)
+                receiver.receiveMessage(encryptedMessage);
         }
     }
 
-    void receiveMessage(String message) {
-        ViewMessageArea.append("Received Encrypted Message: " + message + "\n");
+    void receiveMessage(BigInteger message) {
+        byte[] cByteArray = message.toByteArray();
+        String c = Base64.getEncoder().encodeToString(cByteArray);
+
+        ViewMessageArea.append("Received Encrypted Message: " + c + "\n");
         ViewMessageArea.append("Plaintext: " + decrypt(message) + "\n");
         ViewMessageArea.append("--------------------------------------\n");
     }
@@ -88,17 +95,24 @@ public class User extends JFrame{
         this.sk[1] = n;
     }
 
-    String encrypt(String m) {
+    BigInteger encrypt(String m) {
         //convert string to byte, encoding format UTF8, convert byte to biginteger for calculation
         BigInteger message = new BigInteger(m.getBytes(StandardCharsets.UTF_8));
-        BigInteger c = message.modPow(this.pk[0], this.pk[1]);
-        
-        return c.toString(); //Convert BigInteger to string
+
+        BigInteger c;
+        if(message.compareTo(this.pk[1]) == 1){
+            System.out.println("message too large");
+            c = new BigInteger("-1");
+        }else{
+            c = message.modPow(this.pk[0], this.pk[1]);
+        }
+
+        return c;
     }
 
-    String decrypt(String c) {
+    String decrypt(BigInteger ciphertext) {
         //convert string to biginteger
-        BigInteger ciphertext = new BigInteger(c);
+        // BigInteger ciphertext = new BigInteger(c);
         BigInteger m = ciphertext.modPow(this.sk[0], this.sk[1]);
         
         //convert biginteger to byte
@@ -113,14 +127,21 @@ public class User extends JFrame{
     void menu() {
         final JFrame f = gui.createFrame(this.username + " Window");
 
+        byte[] pk2 = this.pk[1].toByteArray();
+        String spk2 = Base64.getEncoder().encodeToString(pk2);
+
+        // final JLabel keyLabel = new JLabel("Public key: ("+this.pk[0]+", "+this.pk[1]+")  Private key: ("+this.sk[0]+", "+this.sk[1]+")"); 
+        final JLabel keyLabel = new JLabel("Public key: ("+", "+")  Private key: ("+", "+")"); 
         final JButton SEND_MESSAGE_BUTTON = new JButton("Send Message");
         final JButton LOGOUT_BUTTON = new JButton("Log Out");
 
         JPanel buttonPanel = gui.createHoriPanel();
+        buttonPanel.add(keyLabel);
         buttonPanel.add(LOGOUT_BUTTON);
 
         JPanel createMessagePanel = gui.createHoriPanel();
         final JTextField messageInputBox = new JTextField("Enter message here");
+        messageInputBox.setPreferredSize(new Dimension(500, 50));
         createMessagePanel.add(messageInputBox);
         createMessagePanel.add(SEND_MESSAGE_BUTTON);
         

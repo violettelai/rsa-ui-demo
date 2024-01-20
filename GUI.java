@@ -19,7 +19,7 @@ public class GUI {
         p.removeAll();
         p.validate();
         p.setLayout(new FlowLayout());
-        p.setMaximumSize(new Dimension(500,200));
+        p.setMaximumSize(new Dimension(1000,200));
         return p;
     }
 

@@ -8,8 +8,9 @@ class RSA{
     static GUI gui = new GUI();
     public static void main (String args[]){
         final JFrame f = gui.createFrame("Account Login");
+        f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        //Only closing main frame will exit program
+        // Only closing main frame will exit program
         f.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 int ans = JOptionPane.showConfirmDialog(null, "Do you want to exit the program?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -37,28 +38,18 @@ class RSA{
         ActionListener buttonAction = new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 if(e.getSource()== ALICE_BUTTON){
-                    // f.dispose();
                     User alice = new User("Alice");
                     alice.menu();
                 }else if(e.getSource()== BOB_BUTTON){
-                    // f.dispose();
                     User bob = new User("Bob");
                     bob.menu();
                 }else if(e.getSource()== EXIT_BUTTON){
-                    // f.dispose();
                     System.exit(0);
                 }
             }
         };
-
         ALICE_BUTTON.addActionListener(buttonAction);
         BOB_BUTTON.addActionListener(buttonAction);
         EXIT_BUTTON.addActionListener(buttonAction);
-    }
-
-    static boolean login(){
-        User user = new User("Alice");  // Assuming Alice is the username
-        user.menu();
-        return(true);
     }
 }

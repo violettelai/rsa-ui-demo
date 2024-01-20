@@ -8,11 +8,9 @@ public class GUI {
     JFrame f = new JFrame(pageName);
     f.setSize(700,375);
     f.setLayout(new BorderLayout());
+
     //Create JFrame at center of screen (Windows)
     f.setLocationRelativeTo(null); 
-
-    // f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-
     return f; 
   }
 
@@ -31,7 +29,6 @@ public class GUI {
         p.validate();
         p.setLayout(new GridLayout(row, column, hgap, vgap));
         p.setMaximumSize(new Dimension(250,150));
-        //p.setMaximumSize(new Dimension(420,230));
         return p;
     }
 

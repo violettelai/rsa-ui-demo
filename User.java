@@ -19,8 +19,10 @@ public class User extends JFrame{
         this.keygen(1024); // Call key generation method when creating a new user
     }
 
-    public BigInteger[] retrievePublicKey(){
-        return pk;
+    // Alice's receiver is Bob and vice versa
+    String retrieveReceiverName(){
+        if(this.username.equals("Alice")) return "Bob";
+        else return "Alice";
     }
 
     // Both users can send & receive message
@@ -36,16 +38,12 @@ public class User extends JFrame{
     void receiveMessage(String message) {
         ViewMessageArea.append("Received Encrypted Message: " + message + "\n");
         ViewMessageArea.append("Plaintext: " + decrypt(message) + "\n");
-        System.out.println(decrypt(message));
         ViewMessageArea.append("--------------------------------------\n");
     }
 
     // Retrieve Receiver User Object
     User retrieveReceiverObject() {
-        // Alice's receiver is Bob and vice versa
-        String receiverName = "";
-        if(username.equals("Alice")) receiverName = "Bob";
-        else receiverName = "Alice";
+        String receiverName = retrieveReceiverName();
 
         Frame[] frames = Frame.getFrames();
         for (Frame frame : frames) {
@@ -53,7 +51,7 @@ public class User extends JFrame{
                 return (User) frame;
             }
         }
-        JOptionPane.showMessageDialog(null, "Bob is not logged in!", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, retrieveReceiverName() + " is not logged in!", "Error", JOptionPane.ERROR_MESSAGE);
         return null;
     }
 
@@ -88,40 +86,26 @@ public class User extends JFrame{
         this.sk = new BigInteger[2];
         this.sk[0] = d;
         this.sk[1] = n;
-
-        // System.out.println("pk: (" + pk[0] + ","+pk[1]+")");
-        // System.out.println("sk: (" + sk[0] + ","+sk[1]+")");
-        // BigInteger a = new BigInteger("2");
-        // System.out.println("2^1024: " + a.pow(1024));
-        // BigInteger i = new BigInteger("1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111", 2);
-        // System.out.println(i);
     }
 
     String encrypt(String m) {
         //convert string to byte, encoding format UTF8, convert byte to biginteger for calculation
         BigInteger message = new BigInteger(m.getBytes(StandardCharsets.UTF_8));
-        // System.out.printf("ENC: BigInt message: %d \n",message); 
-        
         BigInteger c = message.modPow(this.pk[0], this.pk[1]);
-        // System.out.printf("ENC: BigInt c: %d \n",c);
-
-        //convert biginteger to string
-        return c.toString();
+        
+        return c.toString(); //Convert BigInteger to string
     }
 
     String decrypt(String c) {
         //convert string to biginteger
         BigInteger ciphertext = new BigInteger(c);
-        // System.out.printf("DEC: BigInt ciphertext: %d \n",ciphertext);
-        
         BigInteger m = ciphertext.modPow(this.sk[0], this.sk[1]);
-        // System.out.printf("DEC: BigInt m: %d \n",m);
-
+        
         //convert biginteger to byte
         byte[] decMByteArray = m.toByteArray();
+        
         //convert byte to string, encoding format UTF8
         String s = new String(decMByteArray, StandardCharsets.UTF_8);
-        // System.out.printf("DEC: string m: %s \n",s);
 
         return s;
     }
@@ -129,16 +113,16 @@ public class User extends JFrame{
     void menu() {
         final JFrame f = gui.createFrame(this.username + " Window");
 
-        final JButton CREATE_MESSAGE_BUTTON = new JButton("Create Message");
+        final JButton SEND_MESSAGE_BUTTON = new JButton("Send Message");
         final JButton LOGOUT_BUTTON = new JButton("Log Out");
 
         JPanel buttonPanel = gui.createHoriPanel();
         buttonPanel.add(LOGOUT_BUTTON);
 
         JPanel createMessagePanel = gui.createHoriPanel();
-        final JTextField messageInputBox = new JTextField("20 characters only");
+        final JTextField messageInputBox = new JTextField("Enter message here");
         createMessagePanel.add(messageInputBox);
-        createMessagePanel.add(CREATE_MESSAGE_BUTTON);
+        createMessagePanel.add(SEND_MESSAGE_BUTTON);
         
         ViewMessageArea = new JTextArea();
         ViewMessageArea.setEditable(false);
@@ -148,10 +132,8 @@ public class User extends JFrame{
         scrollPane.setPreferredSize(new Dimension(400, 250));
 
         JPanel boxPanel = gui.createBoxPanel();
-        // boxPanel.add(Box.createVerticalStrut(35));
         boxPanel.add(buttonPanel);
         boxPanel.add(createMessagePanel);
-        // boxPanel.setBackground(Color.RED);
         boxPanel.add(scrollPane);
 
         f.add(boxPanel, BorderLayout.NORTH);
@@ -159,55 +141,19 @@ public class User extends JFrame{
 
         ActionListener buttonAction = new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if(e.getSource()== CREATE_MESSAGE_BUTTON){
+                if(e.getSource()== SEND_MESSAGE_BUTTON){
                     String message = messageInputBox.getText();
-                    if(message.length() >= 20){
-                        JOptionPane.showMessageDialog(null, "Message Too Long!", "Error", JOptionPane.ERROR_MESSAGE);
+                    if(message.length() < 20){
+                        JOptionPane.showMessageDialog(null, "Message Too Short!", "Error", JOptionPane.ERROR_MESSAGE);
                     }else{
                         sendMessage(message);
                     }
-                    // createMsg();
                 }else if(e.getSource()== LOGOUT_BUTTON){
                     f.dispose();
                 }
             }
         };
-
-        CREATE_MESSAGE_BUTTON.addActionListener(buttonAction);
+        SEND_MESSAGE_BUTTON.addActionListener(buttonAction);
         LOGOUT_BUTTON.addActionListener(buttonAction);
-    }
-
-    void createMsg() {
-        // send to: receiver
-        // enter your message: xxxxxx... = m
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter receiver's username: ");
-        String receiver = scanner.nextLine();
-        System.out.print("Enter your message: ");
-        String message = scanner.nextLine();
-
-        // Placeholder code for demonstration purposes
-        String c = this.encrypt(message);
-        System.out.println("Successfully sent: " + c);
-        this.menu();
-    }
-
-    void viewMsg() {
-        // getmsglist
-        // no from date
-        // 1. alice 20240101 23:11
-        // 2. bob 20240102 11:12
-        // c = choice
-        // display(c)
-    }
-
-    void display(String c) {
-        // m = decrypt(c)
-        // print(m)
-        // viewMsg()
-    }
-
-    void logout() {
-        System.out.println("Logged out successfully.");
     }
 }

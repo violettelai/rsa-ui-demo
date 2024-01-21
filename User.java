@@ -24,12 +24,6 @@ public class User extends JFrame{
         this.keygen(1024); // Call key generation method when creating a new user
     }
 
-    // Alice's receiver is Bob and vice versa
-    String retrieveReceiverName(){
-        if(this.username.equals("Alice")) return "Bob";
-        else return "Alice";
-    }
-
     // Both users can send & receive message
     void sendMessage(String message) {
         // to get receiver public key for encryption, secret key for decryption
@@ -53,7 +47,10 @@ public class User extends JFrame{
 
     // Retrieve Receiver User Object
     User retrieveReceiverObject() {
-        String receiverName = retrieveReceiverName();
+        // Alice's receiver is Bob and vice versa
+        String receiverName = "";
+        if(this.username.equals("Alice")) receiverName = "Bob";
+        else receiverName = "Alice";
 
         Frame[] frames = Frame.getFrames();
         for (Frame frame : frames) {
@@ -61,14 +58,13 @@ public class User extends JFrame{
                 return (User) frame;
             }
         }
-        JOptionPane.showMessageDialog(null, retrieveReceiverName() + " is not logged in!", "Error", JOptionPane.ERROR_MESSAGE);
         return null;
     }
 
     void keygen(int keySize) {
         SecureRandom random = new SecureRandom();
 
-         // Choose encryption exponent e = 65537 and ensure it is relatively prime to φ(n)
+        // Choose encryption exponent e = 65537 and ensure it is relatively prime to φ(n)
         BigInteger p, q, n, phiN;
         BigInteger e = new BigInteger("65537");
 
@@ -114,7 +110,7 @@ public class User extends JFrame{
 
         BigInteger c;
         if(message.compareTo(this.pk[1]) == 1){
-            System.out.println("message too large");
+            JOptionPane.showMessageDialog(null, "Message Too Large!", "Error", JOptionPane.ERROR_MESSAGE);
             c = new BigInteger("-1");
         }else{
             c = message.modPow(this.pk[0], this.pk[1]);
@@ -124,14 +120,14 @@ public class User extends JFrame{
     }
 
     String decrypt(BigInteger ciphertext) {
-        //convert string to biginteger
+        // convert string to biginteger
         // BigInteger ciphertext = new BigInteger(c);
         BigInteger m = ciphertext.modPow(this.sk[0], this.sk[1]);
         
         //convert biginteger to byte
         byte[] decMByteArray = m.toByteArray();
         
-        //convert byte to string, encoding format UTF8
+        // convert byte to string, encoding format UTF8
         String s = new String(decMByteArray, StandardCharsets.UTF_8);
 
         return s;
@@ -155,7 +151,8 @@ public class User extends JFrame{
         SKArea.setWrapStyleWord(true);
 
         JPanel keyPanel = gui.createVertPanel(2, 2, 10, -10);
-        keyPanel.add(new JLabel("Pk(e, n)"));      keyPanel.add(new JLabel("Sk(d, n)"));
+        keyPanel.add(new JLabel("Pk(e, n)"));
+        keyPanel.add(new JLabel("Sk(d, n)"));
         keyPanel.add(gui.createScrollPane(PKArea));
         keyPanel.add(gui.createScrollPane(SKArea));
         keyPanel.setPreferredSize(new Dimension(600, 130));

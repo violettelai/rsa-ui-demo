@@ -29,25 +29,25 @@ public class GUI {
         return p;
     }
 
-    public JPanel createVertPanel(int row, int column, int hgap, int vgap){
-        JPanel p = new JPanel();
-        p.removeAll();
-        p.validate();
-        p.setLayout(new GridLayout(row, column, hgap, vgap));
-        p.setMaximumSize(new Dimension(600,150));
-        return p;
-    }
+  public JPanel createVertPanel(int row, int column, int hgap, int vgap){
+      JPanel p = new JPanel();
+      p.removeAll();
+      p.validate();
+      p.setLayout(new GridLayout(row, column, hgap, vgap));
+      p.setMaximumSize(new Dimension(600,150));
+      return p;
+  }
 
-    public JPanel createBoxPanel(){
-        JPanel p = new JPanel();
-        p.removeAll();
-        p.validate();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        return p;
-    }
+  public JPanel createBoxPanel(){
+      JPanel p = new JPanel();
+      p.removeAll();
+      p.validate();
+      p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+      return p;
+  }
 
-    public JScrollPane createScrollPane(JTextArea textArea){
-      JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-      return scrollPane;
-    }
+  public JScrollPane createScrollPane(JTextArea textArea){
+    JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    return scrollPane;
+  }
 }

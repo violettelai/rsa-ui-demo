@@ -12,12 +12,6 @@ class RSA{
         User bob = new User("Bob");
         JPanel bPanel = bob.menu();
 
-        JPanel formatVertical = gui.createBoxPanel();
-        formatVertical.add(Box.createVerticalStrut(15));
-
-        JPanel formatHori = gui.createBoxPanel();
-        formatHori.add(Box.createHorizontalStrut(15));
-
         JPanel boxPanel = gui.createBoxPanel();
         boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.X_AXIS));
         boxPanel.add(aPanel);
